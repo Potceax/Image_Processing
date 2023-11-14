@@ -1,8 +1,12 @@
 #include <iostream>
+#include <vector>
+#include <fstream>
+#include <string>
+
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
 
-void KernelBlur(const std::string& input, const std::string& output = "Default.jpg")
+cv::Mat KernelBlur(const std::string& input, int strg = 5)
 {
     // Load an image
     cv::Mat image = cv::imread(input);
@@ -10,11 +14,11 @@ void KernelBlur(const std::string& input, const std::string& output = "Default.j
     if (image.empty())
     {
         std::cerr << "Could not open or find the image" << std::endl;
-        return;
+        return cv::Mat();
     }
 
     // Define the kernel for a simple averaging blur
-    cv::Mat kernel = cv::Mat::ones(5, 5, CV_32F) / 25.0;  // 5x5 kernel for averaging
+    cv::Mat kernel = cv::Mat::ones(strg, strg, CV_32F) / static_cast<double>(strg * strg);  // (strg x strg) kernel for averaging
 
     // Create a Mat to store the blurred image
     cv::Mat blurredImage;
@@ -23,33 +27,51 @@ void KernelBlur(const std::string& input, const std::string& output = "Default.j
     cv::filter2D(image, blurredImage, -1, kernel, cv::Point(-1, -1), 0, cv::BORDER_DEFAULT);
 
     // Save the blurred image
-    cv::imwrite(output, blurredImage);
 
-    std::cout << "Image blurred using a custom kernel and saved as blurred.jpg" << std::endl;
+
+    return blurredImage;
 }
+
 
 /**
   * Function that mesures time for Kernel type blurs
   * @param: input -> takes image path
   * @param: output -> takes image path
 */
-void TestTime(const std::string& input, const std::string& output = "Default.jpg")
+double TestTime(const std::string& input, int reps = 5)
 {
-    int64_t start = cv::getTickCount();
-    KernelBlur(input, output);
-    int64_t end = cv::getTickCount();
-    double elapsedTime = (end - start) / cv::getTickFrequency();
-    std::cout << "Kernel Time: " << elapsedTime << "s" << std::endl;
+    std::vector<float> time{};
+    double sum{};
+    for (int i{ 0 }; i < 5; ++i)
+    {
+        int64_t start = cv::getTickCount();
+        KernelBlur(input);
+        int64_t end = cv::getTickCount();
+        time.push_back((end - start) / cv::getTickFrequency());
+
+        sum += time.back();
+        std::cout << "Kernel Time: " << time.back() << "s\n";
+    }
+
+    return (sum / reps);
 }
 
 int main()
 {
-    const std::string Input{ "Original.jpg" };
-    const std::string Output{ "blurred.jpg" };
+    std::string Input{ };
+    std::string Output{ };
+    int strength{};
 
-    //KernelBlur(Input, Output);
+    std::ifstream file("file.txt"); // Replace with your file name
+    if (file.is_open())
+    {
+        // Read the first string from the file
+        file >> Input >> Output >> strength;
+        file.close(); // Close the file after reading
+    }
 
-    TestTime(Input, Output);
+    std::cout << "Kernel blur algorithm time: " << TestTime(Input) << '\n';
+    cv::imwrite(Output, KernelBlur(Input, 10));
 
     return 0;
 }
