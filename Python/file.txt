@@ -1,1 +1,1 @@
-Img.jpg, Out.jpg, 10
+Maklowicz1.png, Out.jpg, 10

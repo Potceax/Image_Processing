@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageFilter
 from typing import Callable
 import time
 
@@ -29,6 +29,11 @@ def gaussian_blur(image_path, radius):
 
     return blurred_image
 
+def optimized_gaussian_blur(image_path, radius):
+    image = Image.open(image_path)
+    blurred_image = image.filter(ImageFilter.GaussianBlur(radius))
+    return blurred_image
+
 def measure_time(function: Callable, *args, n_repetitions: int) -> float:
     """Function mesuring argument "function" time
 
@@ -48,7 +53,7 @@ def measure_time(function: Callable, *args, n_repetitions: int) -> float:
     mean_time = sum(times) / n_repetitions
     return mean_time
 
-N_REPS = 10
+N_REPS = 5
 PREP_FILE_PATH = "file.txt"
 
 
@@ -68,11 +73,11 @@ if __name__ == "__main__":
     radius = int(text_dir["radius"])  # Adjust the radius as needed
     
     # mesure time of gaussian_blur
-    # t_time = measure_time(gaussian_blur, input_image_path, radius, n_repetitions=N_REPS)
-    # print(f'gaussian blur: {t_time}')
+    t_time = measure_time(optimized_gaussian_blur, input_image_path, radius, n_repetitions=N_REPS)
+    print(f'gaussian blur: {t_time}')
 
     # create blurred image
-    simple_blur_image = gaussian_blur(input_image_path, radius)
+    simple_blur_image = optimized_gaussian_blur(input_image_path, radius)
     simple_blur_image.save(gaussian_blur_path)
     print(f"Image blurred successfuly")
 
