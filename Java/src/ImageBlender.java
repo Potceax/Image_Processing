@@ -1,47 +1,46 @@
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 public class ImageBlender {
 
-    public static void main(String[] args) throws IOException {
-        // Load the images
-        BufferedImage image1 = ImageIO.read(new File("input1.png"));
-        BufferedImage image2 = ImageIO.read(new File("input.png"));
+    static {
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+    }
 
-        // Create a new image for the blended result
-        BufferedImage blendedImage = new BufferedImage(image1.getWidth(), image1.getHeight(), BufferedImage.TYPE_INT_ARGB);
+    public static void main(String[] args) {
+        long start, stop, time;
+        start = System.currentTimeMillis();
+        Mat blended = new Mat();
+        int tests = 10;
 
-        // Blend the images
-        for (int y = 0; y < image1.getHeight(); y++) {
-            for (int x = 0; x < image1.getWidth(); x++) {
-                int rgb1 = image1.getRGB(x, y);
-                int rgb2 = image2.getRGB(x, y);
+        // Read the images
+        Mat image1 = Imgcodecs.imread("cyr.jpg");
+        Mat image2 = Imgcodecs.imread("input1.png");
 
-                int alpha1 = (rgb1 >> 24) & 0xff;
-                int red1 =   (rgb1 >> 16) & 0xff;
-                int green1 = (rgb1 >>  8) & 0xff;
-                int blue1 =  (rgb1      ) & 0xff;
-
-                int alpha2 = (rgb2 >> 24) & 0xff;
-                int red2 =   (rgb2 >> 16) & 0xff;
-                int green2 = (rgb2 >>  8) & 0xff;
-                int blue2 =  (rgb2      ) & 0xff;
-
-                // Blend the pixels
-                float alphaBlend = 0.5f; // 50% alpha blend
-                int alpha = (int) ((alpha1 * alphaBlend) + (alpha2 * (1 - alphaBlend)));
-                int red = (int) ((red1 * alphaBlend) + (red2 * (1 - alphaBlend)));
-                int green = (int) ((green1 * alphaBlend) + (green2 * (1 - alphaBlend)));
-                int blue = (int) ((blue1 * alphaBlend) + (blue2 * (1 - alphaBlend)));
-
-                int blendedRGB = (alpha << 24) | (red << 16) | (green << 8) | blue;
-                blendedImage.setRGB(x, y, blendedRGB);
-            }
+        // Check if the images are loaded properly
+        if (image1.empty() || image2.empty()) {
+            System.out.println("Error: Could not open or find the images!");
+            return;
         }
 
-        // Save the blended image
-        ImageIO.write(blendedImage, "PNG", new File("output.png"));
+        for(int i=0; i<tests; i++) {
+            // Resize the second image to match the first
+            if (image1.size() != image2.size()) {
+                Imgproc.resize(image2, image2, image1.size());
+            }
+
+            // Blend the images
+            double alpha = 0.5;
+            double beta = 1 - alpha;
+            Core.addWeighted(image1, alpha, image2, beta, 0.0, blended);
+        }
+        stop = System.currentTimeMillis();
+        time = stop - start;
+        System.out.println("Time after 10 tests: " + time + " milliseconds");
+
+        // Save the result
+        Imgcodecs.imwrite("output.png", blended);
     }
 }
