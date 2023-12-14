@@ -80,11 +80,8 @@ static std::string CreateNewFolder(const std::string& folderName)
     // Get the current working directory
     fs::path currentDir = fs::current_path();
 
-    // Name of the new folder
-    std::string newFolderName = "merge";
-
     // Construct the path to the new folder
-    fs::path newFolderPath = currentDir / newFolderName;
+    fs::path newFolderPath = currentDir / folderName;
 
     // Create directory
     if (!fs::exists(newFolderPath))
