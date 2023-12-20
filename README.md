@@ -1,6 +1,6 @@
 # Image Processing Toolkit
 
-This repository is dedicated to providing robust image processing tools implemented in three different programming languages: Python, Java, and C++. The toolkit focuses on essential image manipulation techniques such as cutting, merging, and blurring. It's designed to be versatile and efficient, leveraging popular libraries like Pillow, NumPy, and OpenCV.
+This repository is dedicated to providing image processing tools implemented in three different programming languages: Python, Java, and C++. The toolkit focuses on essential image manipulation techniques such as cutting, merging, and blurring. It's designed to be versatile and efficient, leveraging popular libraries like Pillow, NumPy, and OpenCV.
 
 ## Installation
 
@@ -36,11 +36,9 @@ Here is a basic overview of how to use the toolkit in each language:
 - Set up OpenCV and java.awt.image in your Java project.
 - Apply the necessary functions to carry out image processing tasks.
 
-*For detailed examples and documentation, please refer to the `examples` directory in this repository.*
-
 ## Contributing
 
-Contributions are what make the open-source community an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Any contributions you make are **greatly appreciated**.
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
@@ -56,9 +54,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ### Contact
 
-Project Link: [https://github.com/your_username/project_name](https://github.com/your_username/project_name)
-
-### Acknowledgments
-
-- [Contributor Covenant](https://www.contributor-covenant.org/) for Code of Conduct guidelines
-- [Choose an Open Source License](https://choosealicense.com/)
+Project Link: [https://github.com/Potceax/Image_Processing)](https://github.com/Potceax/Image_Processing)
