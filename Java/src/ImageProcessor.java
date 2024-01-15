@@ -1,8 +1,12 @@
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class ImageProcessor {
 
@@ -85,21 +89,32 @@ public class ImageProcessor {
         return image;
     }
 
-    public static void main(String[] args) {
-        String imagePath = "input.png";
-        String outputPath = "output.png";
+    public static void main(String[] args) throws FileNotFoundException {
+        String imagePath;
+        String outputPath;
         int tests = 10;
 
-        Point position = new Point(600, 600);
-        Scalar white = new Scalar(255);
+        File file = new File("cut_file.txt");
+        Scanner scanner = new Scanner(file);
+        imagePath = scanner.next();
+        outputPath = scanner.next();
+        String shape = scanner.next();
+        int x = scanner.nextInt();
+        int y = scanner.nextInt();
+        int size = scanner.nextInt();
 
-        int size = 200;
+        Point position = new Point(x, y);
+        Scalar white = new Scalar(255);
 
         Shape circle = new Circle(position, white, size);
         Shape square = new Square(position, white, size);
         Shape triangle = new Triangle(position, white, size);
 
-        Shape currentShape = triangle;
+        Shape currentShape = switch (shape) {
+            case "Circle" -> circle;
+            case "Square" -> square;
+            default -> triangle;
+        };
 
         long start = System.currentTimeMillis();
         long end = 0;
@@ -110,6 +125,6 @@ public class ImageProcessor {
         Imgcodecs.imwrite(outputPath, result);
         end = System.currentTimeMillis();
         long time = end - start;
-        System.out.println("Time: " + time/tests + " miliseconds");
+        System.out.println("Time: " + time/tests + " milliseconds");
     }
 }

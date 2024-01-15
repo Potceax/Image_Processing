@@ -1,0 +1,1 @@
+input.png output.png Circle 400 500 500
