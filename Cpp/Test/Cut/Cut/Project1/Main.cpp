@@ -158,28 +158,49 @@ static double TestTime(const std::string& input, const Shape* shape, int reps = 
 
 int main()
 {
-    // Image path values
-	std::string ImagePath{ "Maklowicz.jpg" };
-	std::string OutputPath{ "Mk1.jpg" };
-	OutputPath = CreateNewFolder("Cut") + OutputPath;
+    std::string ImagePath{ "" };
+    std::string OutputPath{ "" };
+    OutputPath = CreateNewFolder("Cut") + OutputPath;
 
-	// shape variables
-	cv::Point position{ 600,600 };
-	cv::Scalar white{ 255 };
-	int size{ 200 };
 
-	// Premade shapes
-	Circle* circle{ new Circle(position, white, size) };
-	Square* square{ new Square(position, white, size) };
-	Triangle* triangle{ new Triangle(position, white, size) };
+    // shape variables
+    std::string shapeStr{ "" };
+    cv::Point position{};
+    cv::Scalar white{ 255 };
+    int size{};
 
-	// choosen shape
-	Shape* currentShape{ (Shape*)square };
+    std::ifstream file("CutFile.txt"); // Replace with your file name
+    if (file.is_open())
+    {
+        // Read the first string from the file
+        file >> ImagePath >> OutputPath >> shapeStr >> position.x >> position.y >> size;
+        file.close(); // Close the file after reading
+    }
 
-    std::cout << TestTime(ImagePath, currentShape);
+    // Premade shapes
+    Circle* circle{ new Circle(position, white, size) };
+    Square* square{ new Square(position, white, size) };
+    Triangle* triangle{ new Triangle(position, white, size) };
 
-	// Cutting a white circle shape out of the image at a given position
-	cv::imwrite(OutputPath, CutShape(ImagePath, currentShape));
+    Shape* currentShape{ };
 
-	return 0;
+    // choosen shape
+    if (shapeStr == "Circle")
+    {
+        currentShape = (Circle*)circle;
+    }
+    else if (shapeStr == "Square")
+    {
+        currentShape = (Square*)square;
+    }
+    else if (shapeStr == "Triangle")
+    {
+        currentShape = (Triangle*)triangle;
+    }
+    std::cout << TestTime(ImagePath, currentShape, 10);
+
+    // Cutting a white circle shape out of the image at a given position
+    cv::imwrite(OutputPath, CutShape(ImagePath, currentShape));
+
+    return 0;
 }
