@@ -1,1 +1,1 @@
-input2.png output.png 5
+input.png input2.png output.png
