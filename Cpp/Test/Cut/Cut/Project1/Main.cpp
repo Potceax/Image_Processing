@@ -127,6 +127,34 @@ static cv::Mat CutShape(const std::string& imagePath, const Shape* shape)
     return image;
 }
 
+/**
+  * Function that mesures time for merging
+  * @param: input -> takes image path
+  * @param: output -> takes image path
+*/
+static double TestTime(const std::string& input, const Shape* shape, int reps = 5)
+{
+    if (shape == nullptr)
+    {
+        return 0.0;
+    }
+
+    std::vector<double> time{};
+    double sum{};
+    for (int i{ 0 }; i < reps; ++i)
+    {
+        int64_t start = cv::getTickCount();
+        CutShape(input, shape);
+        int64_t end = cv::getTickCount();
+        time.push_back((end - start) / cv::getTickFrequency());
+
+        sum += time.back();
+        std::cout << "Time: " << time.back() << "s\n";
+    }
+
+    return (sum / reps);
+}
+
 
 int main()
 {
@@ -147,6 +175,8 @@ int main()
 
 	// choosen shape
 	Shape* currentShape{ (Shape*)square };
+
+    std::cout << TestTime(ImagePath, currentShape);
 
 	// Cutting a white circle shape out of the image at a given position
 	cv::imwrite(OutputPath, CutShape(ImagePath, currentShape));

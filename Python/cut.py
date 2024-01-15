@@ -1,58 +1,83 @@
 import cv2
 import numpy as np
+import os
 
-# tutaj dam klasy ksztaltow
-# class Shape(abstract):
+class Shape:
+    def __init__(self, position, color, size=1):
+        self.position = position
+        self.color = color
+        self.size = size
 
+    def create_shape(self, mask):
+        raise NotImplementedError("Subclasses should implement this!")
 
-def cut_and_leave_shape_opencv(image, shape, position, size):
-    """
-    Cuts a white shape out of the given image using OpenCV, leaving the rest of the image intact.
+class Circle(Shape):
+    def __init__(self, position, color, size=1):
+        super().__init__(position, color, size)
+        self.radius = size // 2
 
-    :param image: Image array loaded by OpenCV
-    :param shape: String, type of shape ('circle', 'square', 'triangle')
-    :param position: Tuple (x, y), the center for circle/square or the first vertex of triangle
-    :param size: Integer, diameter for circle, width/height for square, or size for triangle
-    :return: Image with the shape in white
-    """
-    # Create a mask with the same size as the image
-    mask = np.full(image.shape[:2], 0, dtype=np.uint8)  # Black mask
+    def create_shape(self, mask):
+        cv2.circle(mask, self.position, self.radius, self.color, self.size)
 
-    if shape == 'circle':
-        # Create a white circle on the mask
-        cv2.circle(mask, position, size // 2, (255, 255, 255), -1)
-    elif shape == 'square':
-        # Create a white square on the mask
-        top_left = (position[0] - size // 2, position[1] - size // 2)
-        bottom_right = (position[0] + size // 2, position[1] + size // 2)
-        cv2.rectangle(mask, top_left, bottom_right, (255, 255, 255), -1)
-    elif shape == 'triangle':
-        # Create a white triangle on the mask
-        vertices = np.array([[
-            position,
-            (position[0] + size, position[1]),
-            (position[0], position[1] + size)
-        ]], dtype=np.int32)
-        cv2.fillPoly(mask, vertices, (255, 255, 255))
+class Square(Shape):
+    def __init__(self, position, color, size=1):
+        super().__init__(position, color, size)
+        half_size = size // 2
+        self.pt1 = (position[0] - half_size, position[1] - half_size)
+        self.pt2 = (position[0] + half_size, position[1] + half_size)
 
-    # Invert the mask to get a mask with a white shape on a black background
-    mask_inv = cv2.bitwise_not(mask)
+    def create_shape(self, mask):
+        cv2.rectangle(mask, self.pt1, self.pt2, self.color, self.size)
 
-    # Cut the shape from the image and add a white shape in its place
-    image_white_shape = cv2.bitwise_or(image, image, mask=mask_inv)
-    image_white_shape[mask == 255] = [255, 255, 255]  # Set the shape color to white
+class Triangle(Shape):
+    def __init__(self, position, color, size=1):
+        super().__init__(position, color, size)
+        self.vertices = [position, (position[0] + size, position[1]), (position[0], position[1] + size)]
 
-    return image_white_shape
+    def create_shape(self, mask):
+        cv2.fillPoly(mask, [np.array(self.vertices, dtype=np.int32)], self.color)
 
-if __name__ == "__main__":    
-    image_path = 'Maklowicz.jpg'
+def cut_shape(image_path, shape):
     image = cv2.imread(image_path)
+    mask = np.zeros(image.shape[:2], dtype=np.uint8)
 
-    # Cutting a white circle shape out of the image at a given position
-    cut_image_with_white_circle = cut_and_leave_shape_opencv(image, 'triangle', (100, 100), 200)
+    shape.create_shape(mask)
 
-    # Save the modified image
-    output_path_with_white_circle = 'Out.jpg'
-    cv2.imwrite(output_path_with_white_circle, cut_image_with_white_circle)
+    mask_inv = cv2.bitwise_not(mask)
+    image[mask_inv == 0] = [255, 255, 255]
+    return image
 
+def test_time(input_path, shape, reps=10):
+    if shape is None:
+        return 0.0
 
+    times = []
+    for _ in range(reps):
+        start = cv2.getTickCount()
+        cut_shape(input_path, shape)
+        end = cv2.getTickCount()
+        time = (end - start) / cv2.getTickFrequency()
+        times.append(time)
+
+    return sum(times) / len(times)
+
+def main():
+    image_path = "Maklowicz1.png"
+    output_path = "Mk1.jpg"
+
+    position = (600, 600)
+    white = (255, 255, 255)
+    size = 200
+
+    circle = Circle(position, white, size)
+    square = Square(position, white, size)
+    triangle = Triangle(position, white, size)
+
+    current_shape = triangle
+
+    print(test_time(image_path, current_shape))
+
+    cv2.imwrite(output_path, cut_shape(image_path, current_shape))
+
+if __name__ == "__main__":
+    main()
