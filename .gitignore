@@ -7,6 +7,7 @@
 *.jpg
 *.png
 *.wav
+*.txt
 
 # User-specific files
 *.rsuser

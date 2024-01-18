@@ -1,1 +1,1 @@
-Img.jpg, Out.jpg, 10
+mountain2.png, blur.png, 5
